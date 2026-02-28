@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// The Organization or Client (Multi-tenancy)
+model Tenant {
+  id                String             @id @default(cuid())
+  name              String
+  industry          String
+  workflowTemplates WorkflowTemplate[]
+  users             User[]
+}
+
+model User {
+  id       String  @id @default(cuid())
+  email    String
+  tenantId String
+  tenant   Tenant   @relation(fields: [tenantId], references: [id])
+}
+
+// The Blueprints for a workflow (e.g., "Standard Diagnosis")
+model WorkflowTemplate {
+  id        String          @id @default(cuid())
+  name      String
+  tenantId  String
+  tenant    Tenant          @relation(fields: [tenantId], references: [id])
+  nodes     WorkflowNode[]
+  instances WorkflowInstance[]
+}
+
+// The individual Steps/Stages in a blueprint
+model WorkflowNode {
+  id              String         @id @default(cuid())
+  templateId      String
+  template        WorkflowTemplate @relation(fields: [templateId], references: [id])
+  name            String         // e.g., "Initial Vitals"
+  requiredRole    String         // e.g., "NURSE"
+  
+  // Dependency Logic: Nodes that MUST be finished before this one unlocks
+  dependencies    WorkflowNode[] @relation("NodeDependencies")
+  dependents      WorkflowNode[] @relation("NodeDependencies")
+  stepStates      StepState[]
+}
+
+// A live "Project" or "Case" running the workflow
+model WorkflowInstance {
+  id          String           @id @default(cuid())
+  templateId  String
+  template    WorkflowTemplate @relation(fields: [templateId], references: [id])
+  status      String           @default("ACTIVE") // ACTIVE, COMPLETED, STALLED
+  stepStates  StepState[]
+}
+
+// The specific state of each step in a live workflow
+model StepState {
+  id          String           @id @default(cuid())
+  instanceId  String
+  instance    WorkflowInstance @relation(fields: [instanceId], references: [id])
+  nodeId      String
+  node        WorkflowNode     @relation(fields: [nodeId], references: [id])
+  status      StepStatus       @default(LOCKED)
+  completedBy String?
+  data        Json?            // Industry-specific data (e.g., BP readings or Legal IDs)
+  updatedAt   DateTime         @updatedAt
+}
+
+enum StepStatus {
+  LOCKED      // Prerequisites not met
+  READY       // Prerequisites met, waiting for actor
+  IN_PROGRESS // Actor is working
+  COMPLETED   // Finished and verified
+}
