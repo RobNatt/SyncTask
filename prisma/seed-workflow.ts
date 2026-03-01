@@ -14,6 +14,8 @@ const prisma = new PrismaClient({ adapter }) as unknown as {
     create: (arg: object) => Promise<{ id: string }>;
     update: (arg: object) => Promise<unknown>;
   };
+  workflowInstance: { create: (arg: object) => Promise<{ id: string }> };
+  stepState: { createMany: (arg: object) => Promise<{ count: number }> };
   $disconnect: () => Promise<void>;
 };
 
@@ -61,14 +63,37 @@ async function main() {
         where: { id: nodeMap[step.id] },
         data: {
           dependencies: {
-            connect: step.requires.map(reqId => ({ id: nodeMap[reqId] }))
+            connect: step.requires.map((reqId) => ({ id: nodeMap[reqId] })),
           },
         },
       });
     }
   }
 
-  console.log('✅ Seeding Complete. Workflow engine is ready for deployment.');
+  // 5. Create sample WorkflowInstances for /workflow/[id]
+  const instance = await prisma.workflowInstance.create({
+    data: {
+      id: "test-instance",
+      templateId: template.id,
+      status: "ACTIVE",
+    },
+  });
+
+  const stepStatesData = ClinicalManifest.steps.map((step) => ({
+    instanceId: instance.id,
+    nodeId: nodeMap[step.id],
+    status: step.requires.length === 0 ? "READY" : "LOCKED",
+  }));
+  // DIAGNOSIS depends on VITALS + TECH_CHECK; set READY once we seed
+  const diagIdx = ClinicalManifest.steps.findIndex((s) => s.id === "DIAGNOSIS");
+  if (diagIdx >= 0) stepStatesData[diagIdx].status = "LOCKED";
+
+  await prisma.stepState.createMany({
+    data: stepStatesData,
+  });
+
+  console.log("✅ Seeding Complete. Workflow engine is ready for deployment.");
+  console.log(`   Test at: /workflow/${instance.id}`);
 }
 
 main()

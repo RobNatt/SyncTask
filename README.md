@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+🚀 SYNCRONICITY: The Agnostic Logic Engine
+Syncronicity is a high-performance, configuration-driven orchestration engine designed for mission-critical industries. It replaces static "To-Do" lists with a Dynamic Chain of Command that self-heals during failures.
 
-## Getting Started
+💎 The Value Proposition
+Zero-Code Onboarding: Deploy complex workflows for new industries (Healthcare, Legal, Finance) by simply updating a JSON manifest.
 
-First, run the development server:
+Synchronous Integrity: Using Prisma Transactions, the system ensures tasks are only unlocked when strict dependencies are met.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Automated Remediation: When a Quality Control (QC) officer rejects work, the engine programmatically generates new "Remediation Nodes" to fix the error.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Context-Aware UI: A high-fidelity, "Obsidian-style" interface that provides real-time visual feedback on bottlenecks and priority overrides.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+🏗️ Technical Architecture
+The system is split into two distinct operational zones:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. The Sales Engine (/)
+A cinematic, 120-second simulation of the engine under "Battle Stress."
 
-## Learn More
+Tech: Framer Motion + React State.
 
-To learn more about Next.js, take a look at the following resources:
+Narrative: Demonstrates initial mapping, a critical QC failure, dynamic task generation, and final recovery.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+2. The Production Proof (/workflow/[id])
+A live, backend-connected dashboard that proves the "Synchronicity" logic.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Tech: Next.js Server Actions + TanStack Query + Supabase.
 
-## Deploy on Vercel
+Function: Real-time database polling (1.5s interval) ensures that when an Architect clicks "Execute," the Engineer's screen unlocks instantly across the globe.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+📂 Final File Directory
+Plaintext
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+src/
+├── app/
+│   ├── page.tsx               # Cinematic Sales Landing Page
+│   └── workflow/[id]/
+│       └── page.tsx           # Real-Time Operational Dashboard
+├── components/
+│   ├── demo/
+│   │   └── SalesLoop.tsx      # The 120s Simulation Component
+│   └── workflow/
+│       ├── RealTaskItem.tsx   # Production-ready Task Action logic
+│       └── ReviewerActions.tsx# The Rejection/Remediation Trigger
+├── lib/
+│   ├── prisma.ts              # Database Client
+│   ├── workflow-actions.ts    # Server Actions (The Muscle)
+│   └── workflow-config.ts     # The Master Manifest (The Brain)
+└── prisma/
+    └── schema.prisma          # Relational State Vault
+🛠️ Deployment: Adding a New Industry
+To pivot the entire application to a new sector (e.g., from "Tech Integration" to "Real Estate Closing"), simply modify the workflow.config.ts:
+
+TypeScript
+
+// Example: Adding a new logic node
+{
+  id: "LEGAL_REVIEW",
+  role: "QC",
+  dependsOn: ["TITLE_SEARCH"],
+  onReject: "RE_ISSUE_DOCS" // The engine handles the rest.
+}

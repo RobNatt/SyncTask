@@ -73,4 +73,5 @@ enum StepStatus {
   READY       // Prerequisites met, waiting for actor
   IN_PROGRESS // Actor is working
   COMPLETED   // Finished and verified
+  FAILED      // Rejected, remediation required
 }

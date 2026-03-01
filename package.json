@@ -3,7 +3,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:push": "prisma db push",
+    "db:seed:workflow": "npx ts-node prisma/seed-workflow.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -13,6 +15,7 @@
     "@prisma/client": "^7.4.1",
     "@tanstack/react-query": "^5.90.21",
     "@tanstack/react-query-devtools": "^5.91.3",
+    "lucide-react": "^0.575.0",
     "next": "^15.0.0",
     "pg": "^8.19.0",
     "ts-node": "^10.9.2"

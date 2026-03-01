@@ -1,72 +1,117 @@
 "use server";
-
 import db from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
 export async function completeWorkflowStep(
-  instanceId: string, 
-  stepId: string, 
+  instanceId: string,
+  stepId: string,
   userId: string,
-  data?: any
+  data?: unknown
 ) {
-  try {
-    return await db.$transaction(async (tx) => {
-      const stepState = (tx as unknown as { stepState: { update: (arg: object) => Promise<unknown>; findMany: (arg: object) => Promise<{ id: string; status: string; node: { dependencies: { id: string }[] } }[]> } }).stepState;
-      // 1. Mark the current step as COMPLETED
-      await stepState.update({
-        where: { 
-          // Assuming a unique constraint on instanceId and nodeId
-          id: stepId 
-        },
-        data: {
-          status: "COMPLETED",
-          completedBy: userId,
-          data: data || {},
-        },
-      });
+  return await db.$transaction(async (tx) => {
+    const txStepState = (tx as unknown as {
+      stepState: {
+        update: (arg: object) => Promise<unknown>;
+        findMany: (arg: object) => Promise<{ id: string; status: string; node: { dependencies: { id: string }[] } }[]>;
+        findUnique: (arg: object) => Promise<{ nodeId: string } | null>;
+      };
+    }).stepState;
 
-      // 2. Find all steps in this instance that DEPEND on the one we just finished
-      const dependentSteps = await stepState.findMany({
-        where: {
-          instanceId: instanceId,
-          status: "LOCKED",
-          node: {
-            dependencies: {
-              some: { id: stepId }
-            }
-          }
-        },
-        include: {
-          node: {
-            include: { dependencies: true }
-          }
-        }
-      });
-
-      // 3. Check each dependent step: Are ALL its prerequisites now COMPLETED?
-      for (const step of dependentSteps) {
-        const allPrereqs = await stepState.findMany({
-          where: {
-            instanceId: instanceId,
-            nodeId: { in: step.node.dependencies.map((d: { id: string }) => d.id) }
-          }
-        });
-
-        const isNowReady = allPrereqs.every((p) => p.status === "COMPLETED");
-
-        if (isNowReady) {
-          await stepState.update({
-            where: { id: step.id },
-            data: { status: "READY" }
-          });
-        }
-      }
-
-      revalidatePath(`/workflow/${instanceId}`);
-      return { success: true };
+    await txStepState.update({
+      where: { id: stepId },
+      data: {
+        status: "COMPLETED",
+        completedBy: userId,
+        data: (data as object) ?? {},
+      },
     });
-  } catch (error) {
-    console.error("Workflow Transition Error:", error);
-    return { success: false, error: "Failed to transition workflow state." };
-  }
+
+    const completedStep = await txStepState.findUnique({
+      where: { id: stepId },
+      select: { nodeId: true },
+    });
+    const completedNodeId = completedStep?.nodeId;
+    if (!completedNodeId) return { success: true };
+
+    const dependentSteps = await txStepState.findMany({
+      where: {
+        instanceId,
+        status: "LOCKED",
+        node: {
+          dependencies: {
+            some: { id: completedNodeId },
+          },
+        },
+      },
+      include: {
+        node: { include: { dependencies: true } },
+      },
+    });
+
+    for (const step of dependentSteps) {
+      const allPrereqs = await txStepState.findMany({
+        where: {
+          instanceId,
+          nodeId: { in: step.node.dependencies.map((d: { id: string }) => d.id) },
+        },
+      });
+      const isNowReady = allPrereqs.every((p: { status: string }) => p.status === "COMPLETED");
+      if (isNowReady) {
+        await txStepState.update({
+          where: { id: step.id },
+          data: { status: "READY" },
+        });
+      }
+    }
+
+    revalidatePath(`/workflow/${instanceId}`);
+    return { success: true };
+  });
+}
+
+export async function rejectTaskAction(instanceId: string, stepId: string) {
+  return await db.$transaction(async (tx) => {
+    const txDb = tx as unknown as {
+      stepState: {
+        update: (arg: object) => Promise<unknown>;
+        create: (arg: object) => Promise<unknown>;
+      };
+      workflowInstance: { findUnique: (arg: object) => Promise<{ templateId: string } | null> };
+      workflowNode: { create: (arg: object) => Promise<{ id: string }> };
+    };
+
+    // 1. Mark the current step as FAILED
+    await txDb.stepState.update({
+      where: { id: stepId },
+      data: { status: "FAILED" },
+    });
+
+    // 2. Create remediation node and step state
+    const instance = await txDb.workflowInstance.findUnique({
+      where: { id: instanceId },
+      select: { templateId: true },
+    });
+    if (!instance) {
+      revalidatePath(`/workflow/${instanceId}`);
+      return;
+    }
+
+    const remediationNode = await txDb.workflowNode.create({
+      data: {
+        templateId: instance.templateId,
+        name: "✦ REMEDIATION: Fix Data Integrity",
+        requiredRole: "PRIMARY_ACTOR",
+      },
+    });
+
+    await txDb.stepState.create({
+      data: {
+        instanceId,
+        nodeId: remediationNode.id,
+        status: "READY",
+      },
+    });
+
+    revalidatePath(`/workflow/${instanceId}`);
+  });
 }
