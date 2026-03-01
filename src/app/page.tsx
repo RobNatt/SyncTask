@@ -18,7 +18,7 @@ export default function HomePage() {
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(37,99,235,0.5)]">
             <Cpu size={20} className="text-white" />
           </div>
-          <span className="text-xl font-black tracking-tighter text-white">SYNCRO.TASK</span>
+          <span className="text-xl font-black tracking-tighter text-white">SYNCTASK</span>
         </div>
         <div className="hidden md:flex gap-8 text-sm font-medium text-slate-400">
           <a href="#" className="hover:text-white transition-colors">Engine</a>
