@@ -2,7 +2,7 @@
 
 import { useTransition } from 'react';
 import { rejectTaskAction } from '@/lib/workflow-actions';
-import { XCircle, CheckCircle, Loader2 } from "lucide-react";
+import { XCircle, Loader2 } from "lucide-react";
 
 export function ReviewerActions({ instanceId, targetStepId }: { instanceId: string; targetStepId?: string }) {
   const [isPending, startTransition] = useTransition();

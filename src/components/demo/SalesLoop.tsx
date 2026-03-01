@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
-import { AlertCircle, ShieldAlert, CheckCircle2, Zap, RefreshCcw, Terminal, Activity, ChevronRight, Layers } from "lucide-react";
+import { CheckCircle2, Zap, RefreshCcw, Terminal, Activity, ChevronRight, Layers } from "lucide-react";
 
 export function SalesLoop() {
   const [t, setT] = useState(0);
@@ -159,8 +159,8 @@ export function SalesLoop() {
 
 // --- REFINED UTILS ---
 
-function StageRow({ label, status }: any) {
-  const colors: any = { WAITING: 'text-slate-700', FAILED: 'text-red-500 animate-pulse', SUCCESS: 'text-emerald-500', 'RE-CHECK': 'text-orange-400' };
+function StageRow({ label, status }: { label: string; status: string }) {
+  const colors: Record<string, string> = { WAITING: 'text-slate-700', FAILED: 'text-red-500 animate-pulse', SUCCESS: 'text-emerald-500', 'RE-CHECK': 'text-orange-400' };
   return (
     <div className="flex justify-between items-center border-b border-white/5 pb-2">
       <span className="text-[9px] font-bold text-slate-500 tracking-widest">{label}</span>
@@ -169,7 +169,7 @@ function StageRow({ label, status }: any) {
   );
 }
 
-export function PositionCard({ title, role, children, isActive }: any) {
+export function PositionCard({ title, role, children, isActive }: { title: string; role: string; children: React.ReactNode; isActive?: boolean }) {
   return (
     <div className={`p-7 rounded-[2.5rem] border-2 transition-all duration-700 h-full flex flex-col ${
       isActive ? 'border-blue-500/40 bg-blue-600/[0.04] shadow-[0_0_50px_rgba(37,99,235,0.08)]' : 'border-white/5 bg-white/[0.01]'
@@ -186,8 +186,8 @@ export function PositionCard({ title, role, children, isActive }: any) {
   );
 }
 
-function TaskItem({ label, status, priority, isDynamic }: any) {
-  const styles: any = {
+function TaskItem({ label, status, isDynamic }: { label: string; status: string; priority?: string; isDynamic?: boolean }) {
+  const styles: Record<string, string> = {
     LOCKED: "opacity-5 grayscale blur-[0.5px]",
     ACTIVE: "opacity-100 border-white/10 bg-white/5 shadow-lg",
     COMPLETED: "opacity-40 border-emerald-500/20 bg-emerald-500/10"

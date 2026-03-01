@@ -18,7 +18,7 @@ export function useWorkflowEngine(instanceId: string, config: WorkflowConfig, us
 
     // Check if all prerequisites are COMPLETED in the database
     const prerequisitesMet = step.requires.every(prereqId => {
-      const prereqState = stepStates?.find((s: any) => s.nodeId === prereqId);
+      const prereqState = stepStates?.find((s: { nodeId: string; status: string }) => s.nodeId === prereqId);
       return prereqState?.status === 'COMPLETED';
     });
 
@@ -30,7 +30,7 @@ export function useWorkflowEngine(instanceId: string, config: WorkflowConfig, us
       ...step,
       isLocked,
       canInteract,
-      currentStatus: stepStates?.find((s: any) => s.nodeId === step.id)?.status || 'LOCKED'
+      currentStatus: stepStates?.find((s: { nodeId: string; status: string }) => s.nodeId === step.id)?.status || 'LOCKED'
     };
   });
 

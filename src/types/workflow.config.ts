@@ -11,7 +11,7 @@ export interface WorkflowConfig {
     label: string;
     actor: SystemRole;
     requires: string[]; // IDs of steps that must be COMPLETED
-    validation: (data: any) => boolean; // Zod or custom logic
+    validation: (data: Record<string, unknown>) => boolean; // Zod or custom logic
   }[];
 }
 
