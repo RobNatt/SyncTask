@@ -2,6 +2,8 @@
 
 A high-performance, configuration-driven orchestration engine for mission-critical industries. Replace static task lists with a **Dynamic Chain of Command** that enforces dependencies and self-heals through automated remediation when quality checks fail.
 
+![SyncroTask](public/synctask.png)
+
 ## Features
 
 - **Zero-code onboarding** — Deploy workflows for new industries (Healthcare, Legal, Finance) by updating a TypeScript manifest
