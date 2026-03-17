@@ -1,7 +1,7 @@
 "use client";
 
 import { SalesLoop } from "@/components/demo/SalesLoop";
-import { ShieldCheck, Zap, Globe, Cpu } from "lucide-react";
+import { ShieldCheck, Zap, Globe, Cpu, Github } from "lucide-react";
 
 export default function HomePage() {
   return (
@@ -25,9 +25,20 @@ export default function HomePage() {
           <a href="#" className="hover:text-white transition-colors">Multi-Tenancy</a>
           <a href="#" className="hover:text-white transition-colors">Pricing</a>
         </div>
-        <button className="bg-white text-black px-5 py-2 rounded-full text-sm font-bold hover:bg-blue-500 hover:text-white transition-all">
-          Deploy Engine
-        </button>
+        <div className="flex items-center gap-2">
+          <a
+            href="https://github.com/RobNatt/SyncTask"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-2 rounded-full border border-white/20 text-slate-300 hover:text-white hover:border-white/40 transition-all"
+            aria-label="View on GitHub"
+          >
+            <Github size={20} />
+          </a>
+          <button className="bg-white text-black px-5 py-2 rounded-full text-sm font-bold hover:bg-blue-500 hover:text-white transition-all">
+            Deploy Engine
+          </button>
+        </div>
       </nav>
 
       {/* 3. Hero Section */}
